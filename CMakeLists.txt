@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 include(FetchContent)
 FetchContent_Declare(
         http-ev
-        GIT_REPOSITORY /Users/ziyihuang/source/libhttp-ev
+        GIT_REPOSITORY https://github.com/MrThanlon/libhttp-ev.git
 )
 FetchContent_Declare(
         json
