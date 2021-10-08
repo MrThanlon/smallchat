@@ -77,13 +77,19 @@ void ws_message(http_ws_t *ws, uint8_t opcode, const uint8_t *message, size_t le
         if (!(username_j.is_string() && room_name_j.is_string())) {
             // error
             http_close_connection(ws->http_context);
+            return;
         }
         // search username
         const std::string username_str = username_j;
+        if (username_str.size() < 3) {
+            http_close_connection(ws->http_context);
+            return;
+        }
         auto user_itr = users.find(username_str);
         if (user_itr != users.end()) {
             // used, close
             http_close_connection(ws->http_context);
+            return;
         }
         // create user and insert to users table
         struct user user = {
