@@ -184,6 +184,10 @@ http_ws_handlers_t ws_join_handlers = {
         .on_connection=ws_conn, .on_message=ws_message, .on_close=ws_close
 };
 
+void static_dir(http_context_t *context) {
+    http_send_dir(context, "/Users/ziyihuang/source/smallchat/fe/dist", "index.html");
+}
+
 void err_handler(int err) {
     perror("error");
 }
@@ -196,6 +200,7 @@ int main(int argc, char *argv[]) {
     http_server_t *server = http_create_server();
     server->port = std::atoi(argv[1]);
     server->err_handler = err_handler;
+    http_register_url(server, "/", static_dir);
     http_register_url(server, "/room", get_room);
     http_register_ws(server, "/message", &ws_join_handlers);
     std::cout << "Start server at port " << server->port << std::endl;

@@ -10,7 +10,8 @@
       </div>
     </header>
     <div class="chat d-flex flex-column align-content-between">
-      <div class="chat-flow col-12 h-75 mb-1 border border-dark rounded p-1">
+      <div ref="flow" class="chat-flow col-12 h-75 mb-1 border border-dark rounded p-1">
+        <message v-for="flow in messageFlow" :key="flow.username" :message="flow"></message>
       </div>
       <div class="chat-input col-12 h-25
        d-flex flex-column justify-content-center align-content-start">
@@ -22,6 +23,8 @@
 </template>
 
 <script>
+import Message from '../components/Message'
+
 export default {
   name: 'Chat',
   data () {
@@ -30,7 +33,29 @@ export default {
       // ws: new WebSocket('ws://127.0.0.1:34783/message'),
       message: '',
       statusText: ['Connecting...', 'Online', 'Offline', 'Offline'],
-      statusColor: ['#FFE032', '#64FF32', '#808080FF', '#808080FF']
+      statusColor: ['#FFE032', '#64FF32', '#808080FF', '#808080FF'],
+      messageFlow: [
+        {
+          username: 'Huang Ziyi',
+          message: 'Hello World!\nI am Huang Ziyi'
+        },
+        {
+          username: 'abc',
+          action: 'join'
+        },
+        {
+          username: 'abc',
+          message: 'Hello Huang ziyi!\nI am abc'
+        },
+        {
+          username: 'Zhang Yifei',
+          message: 'fuck'
+        },
+        {
+          username: 'abc',
+          action: 'leave'
+        }
+      ]
     }
   },
   created () {
@@ -44,6 +69,12 @@ export default {
     }
     this.ws.onmessage = d => {
       console.debug('[ws] data', d)
+      const message = JSON.parse(d.data)
+      if ('message' in message) {
+        this.messageFlow.push(message)
+      } else if ('action' in message) {
+        console.debug(message.action)
+      }
     }
     this.ws.onclose = () => {
       this.$forceUpdate()
@@ -60,9 +91,25 @@ export default {
   },
   methods: {
     sendMessage () {
-      this.ws.send(this.message)
+      // this.ws.send(this.message)
+      this.messageFlow.push({
+        username: this.$route.query.username,
+        message: this.message
+      })
       this.message = ''
     }
+  },
+  updated () {
+    // scroll flow to end
+    const flow = this.$refs.flow
+    flow.scrollTo({
+      top: flow.scrollHeight - flow.clientHeight,
+      left: 0,
+      behavior: 'smooth'
+    })
+  },
+  components: {
+    Message
   }
 }
 </script>
@@ -71,7 +118,13 @@ export default {
 .chat {
   height: 480px;
 }
+.chat-flow {
+  overflow-y: scroll;
+}
 .status {
   width: 120px;
+}
+textarea {
+  resize: none;
 }
 </style>
